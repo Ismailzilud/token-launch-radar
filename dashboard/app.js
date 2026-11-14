@@ -76,7 +76,7 @@
       { text: secondActionFor(r, chain) + multi, cost: 'about a quarter of the first position, ' + gas, time: '10 minutes, one week after step 2' },
       { text: 'Repeat one qualifying action on ' + r.name + ' every week — a deposit, a swap, a vote or a claim — so the wallet reads as a user, not a one-time visitor.', cost: 'about $2 of gas a week', time: '10 minutes a week' },
       { text: 'Hold the position for at least ' + hold + ' days: ' + r.name + ' has run ' + (r.age_days == null ? 'an unrecorded span' : r.age_days + ' days') + ' with no token, and snapshots that count farmers usually span months, not days.', cost: 'the $' + capital + ' stays in the position and carries its smart-contract risk', time: hold + ' days' },
-      { text: 'Check ' + r.name + "'s own app and announcements for a points or rewards page every two weeks. If one exists, enrol from inside the app; if a site ever asks you to pay to \u201cclaim\u201d an airdrop, it is a scam — close it.", cost: 'nothing to check; never pay to claim', time: '5 minutes every two weeks' },
+      { text: 'Check ' + r.name + "'s own app and announcements for a points or rewards page every two weeks. If one exists, enrol from inside the app; if a site ever asks you to pay to \"claim\" an airdrop, it is a scam — close it.", cost: 'nothing to check; never pay to claim', time: '5 minutes every two weeks' },
       { text: 'Keep a farm log (wallet, dates, amounts, transaction hashes) and set an exit rule now: withdraw if ' + r.name + "'s TVL falls by half, if its contracts are paused, or when you no longer want the position — token or no token.", cost: 'nothing but the log', time: '5 minutes to set up, reviewed monthly' }
     ];
   }
