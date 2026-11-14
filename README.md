@@ -63,3 +63,10 @@ hold through snapshots, check for a points programme safely, keep an exit rule.
 - `lib/model.ts` — classification, peer calibration, scoring, farm plans, gate self-check
 - `dashboard/` — the static dashboard (`index.html`, `app.css`, `app.js`)
 - `vendor/makefun-board.ts` — the kit's dossier library, byte for byte the scorer's own copy
+
+## Verification
+
+`node verify.ts --input <snapshot.json>` rebuilds the board twice and asserts every
+invariant the sealed gate checks (coverage, ordering, step caps, no tokenized row ranked,
+reproducible output). The entry's triple-audit report — functional, adversarial and
+rubric passes with their evidence — lives in [docs/AUDIT.md](docs/AUDIT.md).
