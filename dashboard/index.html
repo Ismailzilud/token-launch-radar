@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Launch Radar — pre-token protocols ranked by implied value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<a class="skip" href="#board">Skip to the board</a>
+<header class="masthead">
+  <div class="masthead-in">
+    <p class="kicker">Token Launch Radar · model radar-2</p>
+    <h1>Which pre-token protocol is worth farming next?</h1>
+    <p class="lede">Every protocol in the sealed DefiLlama snapshot that still has no token, ranked by what
+    its launch would be worth if it priced the way its already-trading category peers price today —
+    each with the concrete steps to farm it before it issues one.</p>
+    <div id="stats" class="stats" aria-live="polite"></div>
+  </div>
+</header>
+<nav class="tabs" aria-label="Views">
+  <button type="button" data-tab="board" class="tab active">Pre-token board</button>
+  <button type="button" data-tab="live" class="tab">Live tokens, set aside</button>
+  <button type="button" data-tab="model" class="tab">Model &amp; method</button>
+</nav>
+<main id="board" tabindex="-1"></main>
+<section id="method" class="method" hidden>
+  <h2>How the radar values a launch</h2>
+  <p>The implied value is calibrated from the snapshot itself. For each category, take the protocols
+  whose token already trades (at least $1M of TVL behind the market cap), and compute the median of
+  market cap ÷ TVL — the price the market actually pays per dollar of TVL in that category. Each
+  peer's ratio is capped at 5 first (beyond that, a price reflects float and listing scope, not TVL),
+  a thin category is shrunk toward the snapshot-wide median so two peers cannot shout
+  (<code>peer multiple = (n × category median + 3 × global median) / (n + 3)</code>), and the result
+  is held inside 0.2×–3× the global median so no single thin category can dominate the board.</p>
+  <p>Each pre-token protocol is then scored by one function of its own record:
+  <code>implied value = TVL × peer multiple × growth × maturity</code>, where
+  <code>growth = 1 + clamp(7-day TVL change, −50%, +100%) × 0.6</code> and
+  <code>maturity = 0.70 + 0.30 × min(days running with no token, 1095) / 1095</code>.
+  A protocol that is growing and has operated longer without a token ranks above an identical one
+  that is shrinking or brand new.</p>
+  <p>Every row shows its own factors and a confidence grade: <strong>high</strong> when its category
+  has at least eight trading peers and the record is complete, <strong>medium</strong> with at least
+  three peers and at most one missing figure, <strong>low</strong> otherwise. Discount low-confidence
+  rows; the snapshot speaks thinly about them.</p>
+  <h2>What the board excludes, and why</h2>
+  <p>Protocols whose token already trades are never ranked by the model — they sit in the
+  “Live tokens” view at the market's own values. Centralised exchanges are excluded. So are
+  versioned deployments whose name ends in a release marker (V2, v3, 1.5): they are pools of another
+  protocol and inherit its token story. Also excluded: wrapped products of an asset that already
+  trades (a name carrying “Wrapped”, or a bare ticker standing in a bridge category — the WBTC
+  record is the wrapped asset itself, not a launch), products of a listed exchange group, and a
+  tokenless record that shares its name with a record that already carries a token. What remains is
+  ranked whole — the watchlist of protocols above $50M TVL is the floor of the board, never its ceiling.</p>
+  <h2>Honesty box</h2>
+  <p>An implied value is this model's claim about relative worth, not a prediction that a token will
+  be issued, or when, or what it will trade at. Farm plans are generic playbooks derived from each
+  protocol's category, chains, size and age — check a protocol's own site for any live points
+  programme before acting, and never pay anyone to “claim” an airdrop. Figures come from one sealed
+  snapshot; they do not move after its date.</p>
+</section>
+<footer class="foot">
+  <p id="provenance">Built from a sealed snapshot. No network, no tracking, no live prices.</p>
+</footer>
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
