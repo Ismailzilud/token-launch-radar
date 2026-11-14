@@ -216,8 +216,8 @@
       bar('Maturity factor', r.maturity_multiplier, 1.0, fmtMult(r.maturity_multiplier)) +
       '</div>' +
       '<p class="pmeta">' + fmtUsd(r.tvl_usd) + ' × ' + fmtMult(r.peer_multiple) + ' × ' + fmtMult(r.growth_multiplier) + ' × ' + fmtMult(r.maturity_multiplier) +
-      ' = <b>' + fmtUsd(r.implied_value_usd) + '</b>. The peer multiple is the shrunk median market-cap/TVL of ' + r.peer_count +
-      ' trading protocols in ' + esc(r.category || 'this category') + (catStat ? ' (' + r.peer_count + ' peers; ' + catStat.pre_token_count + ' pre-token protocols share the category)' : '') +
+      ' = <b>' + fmtUsd(r.implied_value_usd) + '</b>. The peer multiple is the shrunk median market-cap/TVL of the ' + r.peer_count +
+      ' trading protocol' + (r.peer_count === 1 ? '' : 's') + ' in ' + esc(r.category || 'this category') + (catStat ? ' (' + catStat.pre_token_count + ' pre-token protocols share the category)' : '') +
       '; the snapshot-wide median is ' + fmtMult(DATA.global_multiple) + '.</p>';
     var fl = flags(r);
     if (fl.length) h += '<h3>Risk flags</h3><ul class="flags">' + fl.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>';
