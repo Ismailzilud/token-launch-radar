@@ -4,6 +4,32 @@ All notable changes to the Token Launch Radar entry. The model is deterministic:
 snapshot always produces the same board, so every entry below is reproducible from the
 commit it names.
 
+## 2026-11-15 — radar-3: size curve, set-aside view, backtested ranges
+
+- Model radar-3 replaces radar-2's per-category median multiple (which charged a $2.75B
+  curator the same multiple as a $5M one and priced the board's top row at $1.7B) with a
+  size curve fitted to the snapshot's own trading protocols: OLS of log10(mcap/TVL) on
+  log10(TVL) over 119 comps (level ×0.144 at $100M TVL, slope −0.528 per decade), bent per
+  category by a shrunk, clamped median-residual effect. The same protocol now prices at
+  $87.7M — inside the range the market's own curve supports.
+- The model now grades itself in the open: a leave-one-out backtest over the comps
+  (median miss ×3.24) is printed next to the flat-median benchmark (×5.03) in the
+  dashboard header and calibration panel; the middle half of the model's errors is every
+  row's value range. radar-2's own leave-one-out miss, measured the same way, was ×5.20.
+- Classification tightened to the launch-candidate line: bridges of every kind, liquid
+  staking and restaking receipts, staking pools and stablecoin wrappers are set aside
+  alongside the existing exclusions. The board goes 259 → 196 rows; every one of the 146
+  set-aside records is listed in a new dashboard view with its reason.
+- Farm plans grow from seven to nine steps: a sizing step prices the position's slice of
+  the modelled launch under the board's stated 10%-to-depositors assumption (also shown
+  per row as an airdrop-per-$1k yardstick), and a launch-signal watch step covers safe
+  claim hygiene. The dashboard still regenerates every plan from the same data —
+  string-equality re-verified — and now also recomputes every row's implied value from
+  its published factors on the page (196/196 match), which is why scoreProtocol rounds
+  its multipliers before use.
+- Growth and maturity re-weighted to the form the fitted field supports: growth
+  1 + 0.75 × clamp(Δ7d, −40%, +60%); maturity 0.55 → 1.00 over 730 days, unknown age 365.
+
 ## 2026-11-14 — judge-attack fix: canonical bridges excluded
 
 - A strict-evaluator pass found canonical bridges (a chain's own bridge — Base Bridge,

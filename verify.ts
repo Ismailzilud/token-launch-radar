@@ -9,7 +9,7 @@
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { boardIssue, buildBoard, parseSnapshot } from './lib/model.ts';
+import { boardIssue, buildBoard, isPreToken, parseSnapshot, setAsideReason } from './lib/model.ts';
 
 function fail(message: string): never {
   process.stderr.write(`verify: FAIL — ${message}\n`);
@@ -49,6 +49,21 @@ for (const row of board) {
   if (row.category === 'CEX') fail(`${row.slug} is ranked but is an exchange`);
   if (seen.has(row.slug)) fail(`${row.slug} appears twice`);
   seen.add(row.slug);
+}
+
+// No ranked row outside the watchlist floor may be one the model itself sets aside, and every
+// row's range must bracket its value (boardIssue checks this too; here it is asserted directly).
+const bySlug = new Map(snapshot.protocols.map((p) => [p.slug, p]));
+const tokenizedNames = new Set(snapshot.protocols.filter((q) => !isPreToken(q)).map((q) => q.name.trim().toLowerCase()));
+for (const row of board) {
+  if (!watchlist.has(row.slug)) {
+    const reason = setAsideReason(bySlug.get(row.slug)!, tokenizedNames);
+    if (reason !== null) fail(`${row.slug} is ranked but the model sets it aside: ${reason}`);
+  }
+  if (!(row.implied_low_usd <= row.implied_value_usd && row.implied_value_usd <= row.implied_high_usd)) {
+    fail(`${row.slug} has a range that does not bracket its implied value`);
+  }
+  if (row.farm_steps.length !== 9) fail(`${row.slug} has ${row.farm_steps.length} farm steps, not nine`);
 }
 
 // Reproducibility: the same snapshot must produce the same board, byte for byte.
