@@ -45,7 +45,9 @@
   rows; the snapshot speaks thinly about them.</p>
   <h2>What the board excludes, and why</h2>
   <p>Protocols whose token already trades are never ranked by the model — they sit in the
-  “Live tokens” view at the market's own values. Centralised exchanges are excluded. So are
+  “Live tokens” view at the market's own values. Centralised exchanges are excluded. Canonical
+  bridges are excluded too — a chain's own bridge never launches a token of its own, and several of
+  those records in this snapshot even carry the chain token's market cap. So are
   versioned deployments whose name ends in a release marker (V2, v3, 1.5): they are pools of another
   protocol and inherit its token story. Also excluded: wrapped products of an asset that already
   trades (a name carrying “Wrapped”, or a bare ticker standing in a bridge category — the WBTC

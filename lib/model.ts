@@ -208,12 +208,17 @@ const EXCHANGE_PARENT = /\b(coinbase|binance|kraken|okx|bybit)\b/i;
 const WRAPPED_ASSET = /\b(fbtc|wbtc|sbtc|weth|steth|wsteth|cbeth|reth|sfrxeth)\b/i;
 
 /**
- * Whether a protocol is one the board may rank: pre-token, not an exchange, not a versioned pool,
- * not a wrapped product of a trading asset, not an exchange group's product, and not the tokenless
- * twin of a record that already carries a token under the same name.
+ * Whether a protocol is one the board may rank: pre-token, not an exchange, not a canonical
+ * bridge, not a versioned pool, not a wrapped product of a trading asset, not an exchange
+ * group's product, and not the tokenless twin of a record that already carries a token under
+ * the same name.
  */
 export function isRankable(p: SnapshotProtocol, tokenizedNames?: ReadonlySet<string>): boolean {
   if (!isPreToken(p) || p.category === 'CEX') return false;
+  // A canonical bridge is the chain's own bridge: the token in its story is the chain's token
+  // (several such records in the snapshot carry the chain token's market cap outright), never
+  // a launch of the bridge record itself, so there is nothing here to farm toward.
+  if (p.category === 'Canonical Bridge') return false;
   const name = p.name.trim();
   if (VERSIONED.test(name) || WRAPPED.test(name) || EXCHANGE_PARENT.test(name) || WRAPPED_ASSET.test(name)) return false;
   if (tokenizedNames !== undefined && tokenizedNames.has(name.toLowerCase())) return false;

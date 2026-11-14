@@ -4,6 +4,15 @@ All notable changes to the Token Launch Radar entry. The model is deterministic:
 snapshot always produces the same board, so every entry below is reproducible from the
 commit it names.
 
+## 2026-11-14 — judge-attack fix: canonical bridges excluded
+
+- A strict-evaluator pass found canonical bridges (a chain's own bridge — Base Bridge,
+  Robinhood Chain Bridge, …) ranked as high as #3. They never issue a token of their own:
+  tokenized records in that category carry the chain token's market cap itself. The
+  category is now excluded by the same uniform rule style as the other classifications;
+  the board goes 274 → 259 rows, the watchlist is untouched, and the dashboard's
+  exclusion note explains the reasoning. Full evidence in docs/AUDIT.md.
+
 ## 2026-11-14 — radar-2, triple audit, final optimizer
 
 - Model radar-2: implied value = TVL × category peer multiple × growth factor × maturity

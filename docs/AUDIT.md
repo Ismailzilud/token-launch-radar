@@ -57,3 +57,22 @@
   protocol could still issue a governance token).
 - The board inherits the snapshot's own data quirks; change_7d spikes (max +4.448%) are
   clamped by the model rather than investigated per protocol.
+
+## Judge-attack addendum (2026-11-14, after the triple audit)
+
+A strict-evaluator pass found one material defect the earlier passes had under-weighted:
+the board's top 10 carried three canonical bridges (the official bridge of a chain), at
+ranks 3, 9 and 16. Evidence: the snapshot holds 32 Canonical Bridge records; tokenized ones
+carry the chain token's own market cap (Polygon Bridge $901M, Mantle Bridge $1,33B), which
+proves the record is the chain's infrastructure, not an independent launch candidate, and
+the pre-token ones (Base, Robinhood Chain, Arbitrum, …) will never issue a bridge token of
+their own. Fix: the Canonical Bridge category is excluded by the same uniform rule style as
+the other classifications, and the dashboard's exclusion note says why. Board 274 → 259
+rows; the watchlist is untouched (no canonical bridge is on it — verified against the
+snapshot) and the top of the board is now Steakhouse Financial, Sentora, Gauntlet, Unit,
+Aster Bridge. Regression after the fix: verify.ts PASS, farm-plan string equality PASS,
+official kit check ok = true on the new commit. Also measured and accepted without a fix:
+seven category multiples sit at the 3× band cap by design (the cap is what keeps thin
+categories honest, and every such row is labelled low confidence); farm plans share a
+playbook skeleton per category but every step interpolates the protocol's own figures, and
+all 274 step texts are distinct strings.
