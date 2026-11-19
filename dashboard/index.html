@@ -3,67 +3,106 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Token Launch Radar — what a token would be worth, ranked</title>
+<title>Token Launch Radar — fitted pricing, graded in the open</title>
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
 <header class="masthead">
-  <div class="masthead-in">
-    <div>
-      <h1>Token Launch Radar</h1>
-      <p class="tagline">Protocols that record no token yet, ranked by what a token would be worth if their record stayed as it is — and how to farm each one before it exists.</p>
-    </div>
+  <div class="masthead-inner">
+    <div class="brand"><span class="dot"></span><h1>Token Launch Radar</h1></div>
+    <p class="tagline">Protocols that record no token yet, priced by a curve fitted to the ones that
+    do — each with a launch odds, a farm verdict in dollars, and the model's own
+    out-of-sample grade printed next to it.</p>
     <dl class="facts" id="facts"></dl>
   </div>
 </header>
 
-<section class="model" aria-label="How the implied value is derived">
-  <div class="model-in">
-    <h2>How a value is derived</h2>
-    <p class="formula">implied value = TVL &times; category multiple &times; growth &times; maturity &times; breadth &times; plausibility</p>
-    <ul class="model-notes">
-      <li><strong>Category multiple</strong> — the median market-cap / TVL of protocols in the same category whose token already trades in this snapshot, shrunk toward the global median when a category has few traded peers. No name is scored and nothing is hardcoded: change the snapshot and every multiple moves.</li>
-      <li><strong>Growth</strong> — the seven-day TVL change at half weight, clamped. <strong>Maturity</strong> — years tracked with no token recorded, full weight at three years. <strong>Breadth</strong> — a small step per chain, capped at twenty.</li>
-      <li><strong>Plausibility</strong> — a discount, never a deletion, for shapes that rarely launch a token of their own: exchanges, canonical bridges, wrapped or staked products of a token that already trades, versioned successors. The reason is printed on the row.</li>
-      <li><strong>Already trading</strong> — protocols whose token exists are never ranked. They are the yardstick: open any row to see the traded peers its multiple came from.</li>
+<section class="model">
+  <div class="model-inner">
+    <h2>How a price is built</h2>
+    <p class="formula">implied value = size curve(TVL) &times; category adjustment &times; launch odds &times; growth &times; breadth</p>
+    <ul class="model-points">
+      <li><strong>Size curve</strong> — a power curve of market cap against TVL, fitted by least
+      squares in log space on every protocol in this snapshot whose token already trades.
+      The category adjustment is the median amount its traded peers beat or miss that curve by.</li>
+      <li><strong>Launch odds</strong> — of the protocols DefiLlama has tracked for about as long
+      as this one, the share that record a token today, shrunk toward the snapshot-wide share and blended with the same share in its
+      category. A cross-section of the snapshot, not a prophecy.</li>
+      <li><strong>Set aside, not ranked</strong> — exchanges, canonical bridges, wrapped or staked
+      forms of tokens that already trade, and versioned successors never launch a token of their
+      own, so they leave the board entirely; they are listed below with the reason, not buried
+      at a discount. The watchlist is never set aside.</li>
+      <li><strong>Farm verdict</strong> — the farmer pool is taken as 8% of the implied value; a
+      deposit earns its share of that pool against the capital expected to chase it (1% of TVL).
+      Net of estimated fees and a 4% T-bill yield on the deposit: <span class="v-farm">FARM</span>
+      when the slice clears twice the costs, <span class="v-thin">THIN</span> when it merely clears
+      them, <span class="v-skip">SKIP</span> when it does not.</li>
     </ul>
-    <table class="multiples" id="multiples" aria-label="Category multiples measured from the snapshot"></table>
+    <div class="grade" id="grade"></div>
+    <h3>Category adjustments measured from this snapshot — median traded cap against the curve</h3>
+    <div id="multiples"></div>
+    <div class="aside-note" id="aside-note"></div>
   </div>
 </section>
 
-<main class="board-wrap">
-  <div class="controls" role="search">
-    <label>Search <input id="q" type="search" placeholder="protocol name or slug"></label>
-    <label>Category <select id="f-category"><option value="">All categories</option></select></label>
-    <label>Chain <select id="f-chain"><option value="">All chains</option></select></label>
-    <label>Sort <select id="f-sort">
-      <option value="rank">Implied value (rank)</option>
-      <option value="tvl">TVL</option>
-      <option value="growth">7-day growth</option>
-      <option value="age">Years without a token</option>
-      <option value="multiple">Category multiple</option>
-    </select></label>
+<main>
+  <div class="controls" id="controls">
+    <label>Search
+      <input id="f-search" type="search" placeholder="protocol name or slug">
+    </label>
+    <label>Category
+      <select id="f-category"><option value="">All categories</option></select>
+    </label>
+    <label>Chain
+      <select id="f-chain"><option value="">All chains</option></select>
+    </label>
+    <label>Verdict
+      <select id="f-verdict">
+        <option value="">Any verdict</option>
+        <option value="FARM">FARM</option>
+        <option value="THIN">THIN</option>
+        <option value="SKIP">SKIP</option>
+      </select>
+    </label>
+    <label>Deposit
+      <select id="f-deposit">
+        <option value="1000">$1,000</option>
+        <option value="5000">$5,000</option>
+        <option value="25000">$25,000</option>
+      </select>
+    </label>
+    <label>Sort
+      <select id="f-sort">
+        <option value="rank">Implied value (rank)</option>
+        <option value="net">Farm net, best first</option>
+        <option value="tvl">TVL, largest first</option>
+        <option value="odds">Launch odds, highest first</option>
+        <option value="growth">7d growth, highest first</option>
+      </select>
+    </label>
     <label class="check"><input id="f-watch" type="checkbox"> Watchlist only</label>
     <span class="count" id="count"></span>
   </div>
 
-  <table class="board" id="board">
+  <table id="board">
     <thead>
       <tr>
         <th class="num">#</th><th>Protocol</th><th>Category</th><th class="num">Chains</th>
         <th class="num">TVL</th><th class="num">7d</th><th class="num">Age</th>
-        <th class="num">Multiple</th><th class="num">Implied value</th><th></th>
+        <th class="num">Odds</th><th class="num">Implied value</th><th>Farm verdict</th>
       </tr>
     </thead>
     <tbody id="rows"></tbody>
   </table>
-  <p class="empty" id="empty" hidden>No protocol matches that filter. Loosen it — the radar only ranks protocols that record no token in the snapshot.</p>
+
+  <aside id="detail" hidden></aside>
 </main>
 
-<aside class="detail" id="detail" hidden aria-label="Protocol detail"></aside>
-
 <footer>
-  <p>Built from one sealed snapshot of DefiLlama protocol data (<span id="foot-meta"></span>). “Records no token” is what the snapshot says — a protocol may have a token its record does not carry. An implied value is this board’s own claim about a token that does not exist; it is not a prediction that one will be issued, or when.</p>
+  <p>Built from one sealed snapshot of DefiLlama protocol data (floor $50.0M). “Records no token”
+  is what the snapshot says — a protocol may have a token its record does not carry. An implied
+  value is this board's own claim about a token that does not exist; the launch odds are a
+  cross-section of this snapshot, and neither is a prediction that a token will be issued, or when.</p>
 </footer>
 
 <script src="../data.js"></script>
