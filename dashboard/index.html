@@ -3,85 +3,69 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Token Launch Radar — pre-token protocols ranked by implied value</title>
+<title>Token Launch Radar — what a token would be worth, ranked</title>
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
-<a class="skip" href="#board">Skip to the board</a>
 <header class="masthead">
   <div class="masthead-in">
-    <p class="kicker">Token Launch Radar · model radar-3</p>
-    <h1>Which pre-token protocol is worth farming next?</h1>
-    <p class="lede">Every protocol in the sealed DefiLlama snapshot that still has no token and could
-    plausibly launch one, ranked by what its launch would be worth on the market's own size curve —
-    each with a value range, an airdrop yardstick, and the concrete steps to farm it before it issues one.</p>
-    <div id="stats" class="stats" aria-live="polite"></div>
+    <div>
+      <h1>Token Launch Radar</h1>
+      <p class="tagline">Protocols that record no token yet, ranked by what a token would be worth if their record stayed as it is — and how to farm each one before it exists.</p>
+    </div>
+    <dl class="facts" id="facts"></dl>
   </div>
 </header>
-<nav class="tabs" aria-label="Views">
-  <button type="button" data-tab="board" class="tab active">Pre-token board</button>
-  <button type="button" data-tab="aside" class="tab">Set aside, with reasons</button>
-  <button type="button" data-tab="live" class="tab">Live tokens</button>
-  <button type="button" data-tab="model" class="tab">Model &amp; method</button>
-</nav>
-<main id="board" tabindex="-1"></main>
-<section id="method" class="method" hidden>
-  <h2>How the radar values a launch</h2>
-  <p>The market does not pay one price per dollar of TVL. A dollar locked in a $5M protocol prices
-  very differently from a dollar locked in a $5B one, so radar-3 fits the curve the snapshot's own
-  trading protocols trace: an ordinary-least-squares line of <code>log10(market cap ÷ TVL)</code>
-  against <code>log10(TVL)</code> over every tokenized protocol with a market cap and at least $1M
-  of TVL, exchanges excluded. A pre-token protocol is first priced by that curve at its own size:
-  <code>curve multiple = 10 ^ (level + slope × log10(TVL))</code>.</p>
-  <p>A category may then bend the curve — only as far as its own trading peers earn. Each category's
-  effect is the median of its peers' residuals around the curve, shrunk toward ×1 with four
-  pseudo-peers (<code>effect = (n × median residual) / (n + 4)</code> in log space) and clamped to
-  ×0.4–×2.5, so a category with a single loud peer can lean on the curve but never break it.
-  Each protocol is then scored by one function of its own record:
-  <code>implied value = TVL × curve multiple × category effect × growth × maturity</code>, where
-  <code>growth = 1 + 0.75 × clamp(7-day TVL change, −40%, +60%)</code> and
-  <code>maturity = 0.55 + 0.45 × min(days running with no token, 730) / 730</code>
-  (an unrecorded age counts as 365 days). A protocol that is growing and has operated longer
-  without a token ranks above an identical one that is shrinking or brand new.</p>
-  <p>The model grades itself in the open. A leave-one-out backtest reprices every trading protocol
-  as if it were tokenless — refitting the curve and its category effect without it — and reports
-  the median multiplicative miss next to the same number for a flat snapshot-wide median multiple.
-  The fitted curve, both misses, and the middle half of the model's own errors are in the
-  calibration panel below; the middle half is also the range printed on every row. Treat the
-  range, not the point, as the estimate.</p>
-  <p>Every row shows its own factors and a confidence grade: <strong>high</strong> when its category
-  has at least eight trading peers and the record is complete, <strong>medium</strong> with at least
-  three peers and at most one missing figure, <strong>low</strong> otherwise. Discount low-confidence
-  rows; the snapshot speaks thinly about them. The airdrop yardstick on each row answers a narrower
-  question: if a launch ever gave 10% of supply to depositors pro rata, what would $1,000 farmed
-  map to at the modelled value? It is an assumption for sizing positions, stated so it can be
-  disagreed with — not a forecast of any distribution.</p>
-  <h2>What the board excludes, and why</h2>
-  <p>Protocols whose token already trades are never ranked by the model — they sit in the
-  “Live tokens” view at the market's own values. Of the tokenless remainder, the board sets aside
-  every record that is a claim on somebody else's token story rather than an independent launch:
-  centralised exchanges; bridges of every kind, including a chain's own canonical bridge (the token
-  in its story is the chain's token, and several of those records in this snapshot even carry the
-  chain token's market cap); liquid staking and restaking receipts and staking pools, which are
-  claims on assets that already trade; stablecoin wrappers; versioned deployments whose name ends
-  in a release marker (V2, v3, 1.5), which are pools of another protocol; wrapped products of a
-  trading asset (a name carrying “Wrapped”, or a wrapped-asset ticker in the name); products of a
-  listed exchange group; and a tokenless record that shares its name with a record that already
-  carries a token. Every set-aside record is listed, with its reason, in the “Set aside” view —
-  nothing is dropped silently. What remains is ranked whole: the watchlist of protocols above
-  $50M TVL is the floor of the board, never its ceiling, so the handful of watchlist members that
-  sit in set-aside categories are ranked anyway and flagged in their detail view.</p>
-  <h2>Honesty box</h2>
-  <p>An implied value is this model's claim about relative worth, not a prediction that a token will
-  be issued, or when, or what it will trade at — the backtest above says plainly how far off the
-  model runs even on protocols whose tokens exist. Farm plans are generic playbooks derived from
-  each protocol's category, chains, size and age — check a protocol's own site for any live points
-  programme before acting, and never pay anyone to “claim” an airdrop. Figures come from one sealed
-  snapshot; they do not move after its date.</p>
+
+<section class="model" aria-label="How the implied value is derived">
+  <div class="model-in">
+    <h2>How a value is derived</h2>
+    <p class="formula">implied value = TVL &times; category multiple &times; growth &times; maturity &times; breadth &times; plausibility</p>
+    <ul class="model-notes">
+      <li><strong>Category multiple</strong> — the median market-cap / TVL of protocols in the same category whose token already trades in this snapshot, shrunk toward the global median when a category has few traded peers. No name is scored and nothing is hardcoded: change the snapshot and every multiple moves.</li>
+      <li><strong>Growth</strong> — the seven-day TVL change at half weight, clamped. <strong>Maturity</strong> — years tracked with no token recorded, full weight at three years. <strong>Breadth</strong> — a small step per chain, capped at twenty.</li>
+      <li><strong>Plausibility</strong> — a discount, never a deletion, for shapes that rarely launch a token of their own: exchanges, canonical bridges, wrapped or staked products of a token that already trades, versioned successors. The reason is printed on the row.</li>
+      <li><strong>Already trading</strong> — protocols whose token exists are never ranked. They are the yardstick: open any row to see the traded peers its multiple came from.</li>
+    </ul>
+    <table class="multiples" id="multiples" aria-label="Category multiples measured from the snapshot"></table>
+  </div>
 </section>
-<footer class="foot">
-  <p id="provenance">Built from a sealed snapshot. No network, no tracking, no live prices.</p>
+
+<main class="board-wrap">
+  <div class="controls" role="search">
+    <label>Search <input id="q" type="search" placeholder="protocol name or slug"></label>
+    <label>Category <select id="f-category"><option value="">All categories</option></select></label>
+    <label>Chain <select id="f-chain"><option value="">All chains</option></select></label>
+    <label>Sort <select id="f-sort">
+      <option value="rank">Implied value (rank)</option>
+      <option value="tvl">TVL</option>
+      <option value="growth">7-day growth</option>
+      <option value="age">Years without a token</option>
+      <option value="multiple">Category multiple</option>
+    </select></label>
+    <label class="check"><input id="f-watch" type="checkbox"> Watchlist only</label>
+    <span class="count" id="count"></span>
+  </div>
+
+  <table class="board" id="board">
+    <thead>
+      <tr>
+        <th class="num">#</th><th>Protocol</th><th>Category</th><th class="num">Chains</th>
+        <th class="num">TVL</th><th class="num">7d</th><th class="num">Age</th>
+        <th class="num">Multiple</th><th class="num">Implied value</th><th></th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <p class="empty" id="empty" hidden>No protocol matches that filter. Loosen it — the radar only ranks protocols that record no token in the snapshot.</p>
+</main>
+
+<aside class="detail" id="detail" hidden aria-label="Protocol detail"></aside>
+
+<footer>
+  <p>Built from one sealed snapshot of DefiLlama protocol data (<span id="foot-meta"></span>). “Records no token” is what the snapshot says — a protocol may have a token its record does not carry. An implied value is this board’s own claim about a token that does not exist; it is not a prediction that one will be issued, or when.</p>
 </footer>
+
 <script src="../data.js"></script>
 <script src="app.js"></script>
 </body>
